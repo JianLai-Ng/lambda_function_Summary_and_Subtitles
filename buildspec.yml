@@ -1,0 +1,52 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+
+      # Upgrade AWS CLI & PIP to the latest version
+      - pip install --upgrade awscli
+      - pip install --upgrade pip
+      
+
+      # Define Directories
+      - export HOME_DIR=`pwd`
+      - export NLTK_DATA=$HOME_DIR/nltk_data
+
+  pre_build:
+    commands:
+      - cd $HOME_DIR
+      - echo "pre_build step"
+      # Create VirtualEnv to package for lambda
+      - virtualenv venv
+      - . venv/bin/activate
+      - echo "installing requests, numpy, networkx"
+      # Install Supporting Libraries
+      - pip install -U requests
+      - pip install -U numpy
+      - pip install -U networkx
+      
+      - echo "installing nltk"
+      # Install WordNet
+      - pip install -U nltk
+      - echo "downloading wordnet and stopwords"
+      - python -m nltk.downloader -d $NLTK_DATA wordnet stopwords
+
+      # Output Requirements
+      - pip freeze > requirements.txt
+
+      # Unit Tests
+      # - python -m unittest discover tests
+
+  build:
+    commands:
+      - cd $HOME_DIR
+      - mv $VIRTUAL_ENV/lib/python3.8/site-packages/* .
+
+      # Use AWS SAM to package the application by using AWS CloudFormation
+      - aws cloudformation package --template template.yml --s3-bucket $S3_BUCKET --output-template template-export.yml
+
+artifacts:
+  type: zip
+  files:
+    - template-export.yml
