@@ -29,8 +29,10 @@ Resources:
             - lambda:listTags
             - lambda:TagResource
             - lambda:UntagResource
-          Effect: Allow
-          Principal:
-            Service:
-            - cloudformation.amazonaws.com
+            - iam:PassRole
+            Effect: Allow
+            Resource:
+            - Fn::GetAtt:
+              - LambdaTrustRole
+              - Arn
  
