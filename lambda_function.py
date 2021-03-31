@@ -118,7 +118,7 @@ def lambda_handler(event, context):
     max_sent = 3 #CHANGE
     
     result_summary = list_summary(data, min_sent,max_sent)
-    key_name = "summary_"+(".".join(data["jobName"].split(".")[-2:]))
+    key_name = "summaryjson_" + (".".join(data["jobName"].split(".")[1:][:-1])) + ".json"
     print("result_summary")
     print(result_summary)
     print("saved as")
