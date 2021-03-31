@@ -32,11 +32,7 @@ Resources:
             Resource:
             - Fn::Join:
               - ''
-              - - 'arn:aws:s3:::'
-                - Ref: 'S3Bucket'
-            - Fn::Join:
-              - ''
-              - - 'arn:aws:s3:::'
+              - - 'arn:aws:lambda:us-east-1:653688530178:function:Summarize'
                 - Ref: 'S3Bucket'
                 - /*
           - Action:
