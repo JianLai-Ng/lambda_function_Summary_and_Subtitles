@@ -125,4 +125,4 @@ def lambda_handler(event, context):
     print(key_name)
     
 
-    s3.put_object(Bucket="cs5224-text-summary", Key=key_name, Body=result_summary)
+    s3.put_object(Bucket="cs5224-text-summary", Key=key_name, Body=json.dumps(result_summary).encode())
