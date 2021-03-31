@@ -92,8 +92,9 @@ def generate_summary(file_name, top_n=5):
 
 
 
-def list_summary(text_body, min_sentences, max_sentences):
+def list_summary(text_dict, min_sentences, max_sentences):
     resulting_list ={}
+    text_body = text_dict["results"]["transcripts"][0]['transcript']
     for i in range(min_sentences, max_sentences+1):
         resulting_list[i]= generate_summary(text_body, i)
     return resulting_list
