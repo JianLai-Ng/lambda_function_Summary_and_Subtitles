@@ -114,6 +114,15 @@ def lambda_handler(event, context):
     text = response['Body'].read().decode()
     data = json.loads(text)
     
+    min_sent = 1 #CHANGE
+    max_sent = 3 #CHANGE
+    
+    result_summary = list_summary(data, min_sent,max_sent)
+    key_name = "summary_"+(".".join(data["jobName"].split(".")[-2:]))
+    print("result_summary")
+    print(result_summary)
+    print("saved as")
+    print(key_name)
+    
 
-    print(list_summary(data, 1,3))
-    return list_summary(data, 2,5)
+    s3.put_object(Bucket="cs5224-text-summary", Key=key_name, Body=result_summary)
