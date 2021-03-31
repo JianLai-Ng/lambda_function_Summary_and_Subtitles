@@ -35,6 +35,7 @@ Resources:
             - s3:GetObjectVersion
             Effect: Allow
             Resource:
+            - arn:aws:lambda:us-east-1:653688530178:function:Summarize
             - Fn::Join:
               - ''
               - - 'arn:aws:s3:::summarizerzip'
