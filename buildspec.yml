@@ -42,11 +42,12 @@ phases:
     commands:
       - cd $HOME_DIR
       - mv $VIRTUAL_ENV/lib/python3.8/site-packages/* .
-
+      - echo $VIRTUAL_ENV
       # Use AWS SAM to package the application by using AWS CloudFormation
-      - aws cloudformation package --template template.json --s3-bucket summarizerzip --output-template packaged-template.json --debug
+      - echo $S3_BUCKET
+      - sam package --template template.yml --s3-bucket summarizerzip --output-template template-export.yml
 
 artifacts:
   type: zip
   files:
-    - packaged-template.json
+    - template-export.yml
