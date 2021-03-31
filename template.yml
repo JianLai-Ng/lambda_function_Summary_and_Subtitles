@@ -15,7 +15,8 @@ Resources:
             Method: GET
       AssumeRolePolicyDocument:
         Statement:
-        - Action: sts:AssumeRole
+        - Effect: Allow
+            Action: sts:AssumeRole
             - codestar:SyncResources
             - lambda:CreateFunction
             - lambda:DeleteFunction
@@ -30,7 +31,6 @@ Resources:
             - lambda:TagResource
             - lambda:UntagResource
             - iam:PassRole
-            Effect: Allow
             Resource:
             - Fn::GetAtt:
               - LambdaTrustRole
