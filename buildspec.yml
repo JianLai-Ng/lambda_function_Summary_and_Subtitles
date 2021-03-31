@@ -45,7 +45,7 @@ phases:
       - echo $VIRTUAL_ENV
       # Use AWS SAM to package the application by using AWS CloudFormation
       - echo $S3_BUCKET
-      - sam package --template template.yml --s3-bucket summarizerzip --output-template template-export.yml
+      - sam package --template template.yml --s3-bucket summarizerzip --output-template-file template-export.yml
 
 artifacts:
   type: zip
