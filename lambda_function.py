@@ -246,7 +246,7 @@ def lambda_handler(event, context):
     while len(op_dict)==0:
         try:
             # TODO: write code...
-            op_dict = s3.get_object_tagging(Bucket='cs5224-text', Key=job_name + '.json')
+            op_dict = s3.get_object_tagging(Bucket='cs5224-text', Key=key_2 + '.json')
             print('Tag Detected in Bucket')
         except ClientError:
             time.sleep(20)
