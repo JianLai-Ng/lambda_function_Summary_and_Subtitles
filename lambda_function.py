@@ -5,7 +5,7 @@ from nltk.cluster.util import cosine_distance
 import numpy
 import networkx as nx
 from botocore.errorfactory import ClientError
-
+import time
 
 import boto3
 s3 = boto3.client('s3')
