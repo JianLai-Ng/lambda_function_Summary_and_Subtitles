@@ -231,21 +231,30 @@ def lambda_handler(event, context):
     
     response = s3.get_object(Bucket = bucket_2, Key = key_2)
     
+    print("got response")
+    
     #Load the transcribed json file
     text = response['Body'].read().decode()
     data = json.loads(text)
     
+    print("loaded text")    
+    
     #Load the tag set
-    op_dict = client.get_object_tagging( Bucket='cs5224-text',
+    op_dict = s3.get_object_tagging( Bucket='cs5224-text',
     Key=key_2 + '.json')
     
+    print("got tag object")   
+    
     tag_dict = create_dict_from_tagset(op_dict['TagSet'])
-    min_sent = tag_dict['summary_option_1']
-    max_sent = tag_dict['summary_option_2']
+    min_sent = int(tag_dict['summary_option_1'])
+    max_sent = int(tag_dict['summary_option_2'])
     type_process = tag_dict['summary_type']
 
+    print("parsed requirement")
+    print(str(type_process) + str(min_sent)+"_" +str(max_sent))
     
     if type_process == 'Summary':
+        print("creating summary")
         result_summary = list_summary(data, min_sent,max_sent)
         key_name = ".".join(data["jobName"].split(".")[:-1]) + ".json"
         print("result_summary")
@@ -257,7 +266,7 @@ def lambda_handler(event, context):
         s3.put_object(Bucket="cs5224-text-summary", Key=key_name, Body=json.dumps(result_summary).encode())
         
     elif type_process == 'Subtitle':
-
+        print("creating subtitles")
         subbed_list = subs_list_maker(data)
         key_name = ".".join(data["jobName"].split(".")[:-1]) + ".srt"
 
