@@ -193,7 +193,7 @@ def generate_summary(file_name, top_n=5):
     scores = nx.pagerank_numpy(sentence_similarity_graph)
 
     # Step 4 - Sort the rank and pick top sentences
-    ranked_sentence = sorted(((scores[i],s) for i,s in enumerate(sentences)), reverse=True)    
+    ranked_sentence = sorted(((scores[i],s) for i,s in enumerate(sentences)), reverse=False)    
     #print("Indexes of top ranked_sentence order are ", ranked_sentence)    
 
     for i in range(top_n):
