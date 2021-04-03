@@ -237,8 +237,11 @@ def lambda_handler(event, context):
     #Load the transcribed json file
     text = response['Body'].read().decode()
     data = json.loads(text)
+   
     
     print("loaded text")    
+    print(type(data))
+    print(data)
     
     #Load the tag set
     
