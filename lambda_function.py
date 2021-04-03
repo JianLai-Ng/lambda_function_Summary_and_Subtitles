@@ -243,7 +243,7 @@ def lambda_handler(event, context):
     #Load the tag set
     
     op_dict = {}
-    while len(response_dict)==0:
+    while len(op_dict)==0:
         try:
             # TODO: write code...
             op_dict = s3.get_object_tagging(Bucket='cs5224-text', Key=job_name + '.json')
