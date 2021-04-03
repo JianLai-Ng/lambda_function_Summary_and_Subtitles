@@ -280,8 +280,8 @@ def lambda_handler(event, context):
         print("saved as")
         print(key_name)
 
-
-        s3.put_object(Bucket="cs5224-subtitles-output", Key=key_name, Body=subbed_list)        
+        sub_str = "".join(subbed_list)
+        s3.put_object(Bucket="cs5224-subtitles-output", Key=key_name, Body=sub_str)        
         
         
         
