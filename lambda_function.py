@@ -4,6 +4,7 @@ from nltk.corpus import stopwords
 from nltk.cluster.util import cosine_distance
 import numpy
 import networkx as nx
+from botocore.errorfactory import ClientError
 
 
 import boto3
@@ -240,10 +241,20 @@ def lambda_handler(event, context):
     print("loaded text")    
     
     #Load the tag set
-    op_dict = s3.get_object_tagging( Bucket='cs5224-text',
-    Key=key_2 + '.json')
     
-    print("got tag object")   
+    op_dict = {}
+    while len(response_dict)==0:
+        try:
+            # TODO: write code...
+            op_dict = s3.get_object_tagging(Bucket='cs5224-text', Key=job_name + '.json')
+            print('Tag Detected in Bucket')
+        except ClientError:
+            time.sleep(20)
+            print('Retrying')
+            continue
+
+    
+  
     
     tag_dict = create_dict_from_tagset(op_dict['TagSet'])
     min_sent = int(tag_dict['summary_option_1'])
