@@ -252,8 +252,8 @@ def lambda_handler(event, context):
 
     
   
-    min_sent = obj_info_list[1]
-    max_sent = obj_info_list[2]
+    min_sent = int(obj_info_list[1])
+    max_sent = int(obj_info_list[2])
     type_process = obj_info_list[0]
 
     print("parsed requirement")
