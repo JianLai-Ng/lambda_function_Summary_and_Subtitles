@@ -29,61 +29,9 @@ def read_article(body):
 
 ################################################################## SUBTITLE FUNC ##################################################################
 def subs_list_maker(job, len_option1 = 10 , len_option2 = 12):
+
     
-    
-    
-###### Correct 1st sentence 1st word to capital letter   
-    list1 = job['results']['transcripts'][0]['transcript'].split(". ")
-    list1[0] = list1[0][0].upper() + list1[0][1:]
-    list1
-###### Add full stops where appropriate
-    list1 = [x.strip() for x in list1]
-    list1 = [x+'.' if x[-1]!='.'else x for x in list1]
-    list1
-###### Split sentences to tokens fo appropriate length
-    sentence_tokens = []
-    dabao = False
-    dabao_item = ''
-
-
-    for sent in list1:
-        sent = sent.split(" ")
-
-
-        numwords = len(sent)
-        if numwords <= 3:
-            dabao = True
-            dabao_item = sent
-            continue
-
-
-
-        if dabao == True:
-            sent = dabao_item + sent
-
-        numwords = len(sent)
-        #print(numwords)
-        cutter_num = (len_option2 if numwords%len_option2 == 0 else len_option1 if (numwords%len_option1 > numwords%len_option2) else len_option2)
-        #print(cutter_num)
-        word_tokens_sentence = sent
-        list_sent_tokens = [word_tokens_sentence[i:i+cutter_num] for i in range(0, len(word_tokens_sentence), cutter_num)]
-        for sent_token in list_sent_tokens:
-
-            if len(sent_token) <= 3:
-                dabao = True
-                dabao_item = sent_token
-                continue
-            else:
-                dabao = False
-                dabao_item = ''
-            #print(" ".join(sent_token))
-            sentence_tokens.append(sent_token)
-
-            #print("")
-
-
-
-###### Split sentences to tokens of appropriate length
+    ###### Split sentences to tokens of appropriate length
     word_time = []
 
     for eachword_dict in job['results']['items']:
@@ -94,8 +42,82 @@ def subs_list_maker(job, len_option1 = 10 , len_option2 = 12):
             word_time.append([this_word, start_time, end_time])
         except:
             pass
+        
+    ###### Correct 1st sentence 1st word to capital letter   
+    list1 = job['results']['transcripts'][0]['transcript'].split(". ")
+    list1[0] = list1[0][0].upper() + list1[0][1:]
+    list1
+    
+    ###### Add full stops where appropriate
+    list1 = [x.strip() for x in list1]
+    list1 = [x+'.' if x[-1]!='.'else x for x in list1]
+    list1        
+        
+    ###### Determine if end of a sentence should be displayed with the start of the next sentence  (if happens in next 1.5 seconds)
+    sentence_carry_over = []
+    counter = 0
+    
+    for sent in list1:
+        sent = sent.split(" ")
 
-###### Get start and end timings of each sentence tokens
+        i = len([ x for x in sent if x!=''])
+        if i+counter!= len(word_time):
+            end_time4sent =  word_time[counter +i-1][2]
+            start_time4Nsent = word_time[counter +i][1]
+            #print(sent)
+            #print("end of sentence: " + str(end_time4sent) + str(word_time[counter +i-1]))
+            #print("start of next sentence:" + str(start_time4Nsent))
+            #print("")
+            if float(start_time4Nsent) - float(end_time4sent)<1.5:
+                sentence_carry_over.append(True) 
+            else:
+                sentence_carry_over.append(False)     
+        counter = counter +i
+
+    ###### Split sentences to tokens fo appropriate length
+    sentence_tokens = []
+    dabao = False
+    dabao_item = ''
+
+    for sent_num in range(0,len(list1)):
+        sent = list1[sent_num]
+        sent = sent.split(" ")
+
+
+        #
+        numwords = len(sent)
+        if numwords <= 3:
+            if  sentence_carry_over[sent_num]:      
+                dabao = True
+                dabao_item = sent
+                continue
+                
+        if dabao == True:
+            sent = dabao_item + sent
+
+        #CURRENT SENTENCE
+        numwords = len(sent) #NUMBER OF WRODS
+        #print(numwords)
+        cutter_num = (len_option2 if numwords%len_option2 == 0 else len_option1 if (numwords%len_option1 > numwords%len_option2) else len_option2)
+        #print(cutter_num)
+        word_tokens_sentence = sent #list of words
+        list_sent_tokens = [word_tokens_sentence[i:i+cutter_num] for i in range(0, len(word_tokens_sentence), cutter_num)] #grouped tokens
+        for sent_token in list_sent_tokens:
+
+            if len(sent_token) <= 3 and sentence_carry_over[sent_num]:
+                dabao = True
+                dabao_item = sent_token
+                continue
+            else:
+                dabao = False
+                dabao_item = ''
+            print(" ".join(sent_token))
+            sentence_tokens.append(sent_token)
+
+            print("")
+
+
+    ###### Get start and end timings of each sentence tokens
     counter  =0
     next_counter = 0
     result_puzzle = []
@@ -110,7 +132,7 @@ def subs_list_maker(job, len_option1 = 10 , len_option2 = 12):
         result_puzzle.append([sent_start, sent_end, sentok])
 
 
-###### Create list to store entries of srt output file
+    ###### Create list to store entries of srt output file
     counter = 1
     srt_list=[]
     for aset in result_puzzle:
