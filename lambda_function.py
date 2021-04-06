@@ -271,7 +271,8 @@ def lambda_handler(event, context):
     print("JOBNAME: " + str(data["jobName"]))
     obj_info_list = obj_info.split("-1234-julainisdabest-5678-")[1].split("-")
 
-
+    num_words_for_billing = len(data["results"]["transcripts"][0]['transcript'].split(" "))
+    ### REFER TO CODE IN TRANSCRIBE AND ADD HERE (DEFINE FUNCTIONS OUTSIDE LAMBDA)
     
   
     min_sent = int(obj_info_list[1])
