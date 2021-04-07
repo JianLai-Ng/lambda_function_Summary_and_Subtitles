@@ -25,8 +25,7 @@ phases:
       - pip install -U requests
       - pip install -U numpy
       - pip install -U networkx
-      - echo "pymysql"
-      - pip install -U pymysql
+
       
       - echo "installing nltk"
       # Install WordNet
