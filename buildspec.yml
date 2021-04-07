@@ -7,11 +7,12 @@ phases:
       # Upgrade AWS CLI & PIP to the latest version
       - pip install --upgrade awscli
       - pip install --upgrade pip
-      
+      - pip install -U pytest
 
       # Define Directories
       - export HOME_DIR=`pwd`
       - export NLTK_DATA=$HOME_DIR/nltk_data
+      - export PYTHONPATH=.
 
   pre_build:
     commands:
