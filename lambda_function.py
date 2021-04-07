@@ -265,9 +265,9 @@ def get_email_address(event):
     return email_receiver
 
 #Configuration Values
-endpoint = 'user-tracking-3.clla7ea9cpk9.us-east-1.rds.amazonaws.com'
-username = 'admin'
-password = 'LOL696969'
+endpoint = {endpoint}
+username = {username}
+password = {password}
 database_name = 'usage_tracking'
 
 #Connection
