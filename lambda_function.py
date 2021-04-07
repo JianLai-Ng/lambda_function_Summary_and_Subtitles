@@ -6,6 +6,7 @@ import numpy
 import networkx as nx
 from botocore.errorfactory import ClientError
 import time
+import datetime
 
 import boto3
 s3 = boto3.client('s3')
@@ -160,6 +161,7 @@ def subs_list_maker(job, len_option1 = 10 , len_option2 = 12):
     return srt_list
 ####################################################################################################################################
 
+
 ################################################################## SUMMARY FUNC ##################################################################
 def sentence_similarity(sent1, sent2, stopwords=None):
     if stopwords is None:
@@ -241,8 +243,44 @@ def create_dict_from_tagset(tagset):
         val = tagpair['Value']
         op_dict[key] = val
     return op_dict
+################################################################## Update User data FUNC ##################################################################
 
+#Get email address
+def get_email_address(event):
+    key_1 = event['Records'][0]
+    key_2 = urllib.parse.unquote_plus(key_1['s3']['object']['key'], encoding = 'utf-8')
+    
+    email_receiver = key_2.split("-1234-julainisdabest-5678-")[0].replace("-1234-redonesgofaster-5678-", '@')
+    
+    return email_receiver
+
+#Configuration Values
+endpoint = 'user-tracking-3.clla7ea9cpk9.us-east-1.rds.amazonaws.com'
+username = 'admin'
+password = 'LOL696969'
+database_name = 'usage_tracking'
+
+#Connection
+connection = pymysql.connect(host = endpoint, user = username, passwd = password, db = database_name)
+
+#Define function to write to RDS
+def write_to_RDS(date_val, email_val, audio_length_sec_val, price_val):
+	cursor1 = connection.cursor()
+	cursor1.execute('CREATE TABLE IF NOT EXISTS tracking_table(date DATE not null, email VARCHAR(255) not null, audio_length_sec FLOAT(16) not null, price FLOAT(16) not null, PRIMARY KEY (date, email))')
+
+	cursor2 = connection.cursor()
+	cursor2.execute('INSERT INTO tracking_table(date, email, audio_length_sec, price) VALUE(%s, %s, %s, %s)', (date_val, email_val, audio_length_sec_val, price_val))
+
+	#Check execution
+	cursor3 = connection.cursor()
+	cursor3.execute('SELECT * from tracking_table')
+
+	rows = cursor3.fetchall()
+	
+	print(rows)
 ####################################################################################################################################
+
+################################################################## Lambda FUNC ##################################################################
 
 def lambda_handler(event, context):
 
@@ -271,9 +309,15 @@ def lambda_handler(event, context):
     print("JOBNAME: " + str(data["jobName"]))
     obj_info_list = obj_info.split("-1234-julainisdabest-5678-")[1].split("-")
 
+    ############ UPDATE CLIENT DATA
     num_words_for_billing = len(data["results"]["transcripts"][0]['transcript'].split(" "))
-    ### REFER TO CODE IN TRANSCRIBE AND ADD HERE (DEFINE FUNCTIONS OUTSIDE LAMBDA)
-    
+    email_val = get_email_address(event)
+    date_val = datetime.datetime.now()
+    price_val = 0.3
+    print("CLIENT UPDATE ENTRY")
+    print((date_val, email_val, num_words_for_billing, price_val))
+    write_to_RDS(date_val, email_val, num_words_for_billing, price_val)
+    ####################################
   
     min_sent = int(obj_info_list[1])
     max_sent = int(obj_info_list[2])
@@ -282,7 +326,7 @@ def lambda_handler(event, context):
     print("parsed requirement")
     print(str(type_process) + str(min_sent)+"_" +str(max_sent))
     
-    if type_process == 'Summary':
+    if type_process == 'Summary':  ############ SUMMARY SERVICE
         print("creating summary")
         result_summary = list_summary(data, min_sent,max_sent)
         key_name = ".".join(data["jobName"].split(".")[:-1]) + ".json"
@@ -294,7 +338,7 @@ def lambda_handler(event, context):
 
         s3.put_object(Bucket="cs5224-text-summary", Key=key_name, Body=json.dumps(result_summary).encode())
         
-    elif type_process == 'Subtitle':
+    elif type_process == 'Subtitle':  ############ SUBTITLE SERVICE
         print("creating subtitles")
         subbed_list = subs_list_maker(data)
         key_name = ".".join(data["jobName"].split(".")[:-1]) + ".srt"
