@@ -28,6 +28,7 @@ def read_article(body):
     return sentences
 
 
+
 ################################################################## SUBTITLE FUNC ##################################################################
 def subs_list_maker(job, len_option1 = 10 , len_option2 = 12):
 
@@ -87,11 +88,20 @@ def subs_list_maker(job, len_option1 = 10 , len_option2 = 12):
 
         #
         numwords = len(sent)
-        if numwords <= 3:
-            if  sentence_carry_over[sent_num]:      
-                dabao = True
-                dabao_item = sent
-                continue
+        try:
+            if numwords <= 3:
+
+                if  sentence_carry_over[sent_num]:      
+                    dabao = True
+                    dabao_item = sent
+                    continue
+        except:
+            print(" ".join(sent))
+            sentence_tokens.append(sent)
+            break
+
+            print("")
+                    
                 
         if dabao == True:
             sent = dabao_item + sent
