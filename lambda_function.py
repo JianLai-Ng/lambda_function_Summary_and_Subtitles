@@ -313,7 +313,7 @@ def lambda_handler(event, context):
     num_words_for_billing = len(data["results"]["transcripts"][0]['transcript'].split(" "))
     email_val = get_email_address(event)
     date_val = datetime.datetime.now()
-    price_val = 0.3
+    price_val = 0.36 * (num_words_for_billing//100)
     print("CLIENT UPDATE ENTRY")
     print((date_val, email_val, num_words_for_billing, price_val))
     write_to_RDS(date_val, email_val, num_words_for_billing, price_val)
