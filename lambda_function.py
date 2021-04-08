@@ -7,6 +7,7 @@ import networkx as nx
 from botocore.errorfactory import ClientError
 import time
 import datetime
+import pymysql
 
 import boto3
 s3 = boto3.client('s3')
@@ -23,7 +24,7 @@ def read_article(body):
         #print(sentence[0])
         sentenced =sentence[0].upper() + sentence[1:]
         sentences.append(sentenced.replace("[^a-zA-Z]", " ").split(". "))
-    sentences.pop() 
+	
     
     return sentences
 
@@ -172,6 +173,7 @@ def subs_list_maker(job, len_option1 = 10 , len_option2 = 12):
 ####################################################################################################################################
 
 
+
 ################################################################## SUMMARY FUNC ##################################################################
 def sentence_similarity(sent1, sent2, stopwords=None):
     if stopwords is None:
@@ -231,7 +233,10 @@ def generate_summary(file_name, top_n=5):
     #print("Indexes of top ranked_sentence order are ", ranked_sentence)    
 
     for i in range(top_n):
-      summarize_text.append(" ".join(ranked_sentence[i][1]))
+        try:
+            summarize_text.append(" ".join(ranked_sentence[i][1]))
+        except:
+            print(str(i+1) + " sentences requested. ", str(len(sentences)) + " sentences available")
 
     # Step 5 - Offcourse, output the summarize texr
     #print("Summarize Text: \n", ". ".join(summarize_text))
@@ -268,7 +273,7 @@ def get_email_address(event):
 endpoint = {endpoint}
 username = {username}
 password = {password}
-database_name = 'usage_tracking'
+database_name = {database_name}
 
 #Connection
 connection = pymysql.connect(host = endpoint, user = username, passwd = password, db = database_name)
@@ -276,8 +281,7 @@ connection = pymysql.connect(host = endpoint, user = username, passwd = password
 #Define function to write to RDS
 def write_to_RDS(date_val, email_val, audio_length_sec_val, price_val):
 	cursor1 = connection.cursor()
-	cursor1.execute('CREATE TABLE IF NOT EXISTS tracking_table(date DATE not null, email VARCHAR(255) not null, audio_length_sec FLOAT(16) not null, price FLOAT(16) not null, PRIMARY KEY (date, email))')
-
+	cursor1.execute('CREATE TABLE IF NOT EXISTS tracking_table(date DATE not null, email VARCHAR(255) not null, audio_length_sec FLOAT(16) not null, price FLOAT(16) not null)')
 	cursor2 = connection.cursor()
 	cursor2.execute('INSERT INTO tracking_table(date, email, audio_length_sec, price) VALUE(%s, %s, %s, %s)', (date_val, email_val, audio_length_sec_val, price_val))
 
@@ -323,7 +327,7 @@ def lambda_handler(event, context):
     num_words_for_billing = len(data["results"]["transcripts"][0]['transcript'].split(" "))
     email_val = get_email_address(event)
     date_val = datetime.datetime.now()
-    price_val = 0.36 * (num_words_for_billing//100)
+    price_val = 0.36 * ((num_words_for_billing//100)+1)
     print("CLIENT UPDATE ENTRY")
     print((date_val, email_val, num_words_for_billing, price_val))
     write_to_RDS(date_val, email_val, num_words_for_billing, price_val)
